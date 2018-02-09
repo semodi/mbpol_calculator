@@ -9,6 +9,9 @@ if __name__ == '__main__':
                 cell = [a, a, a],
                 pbc = True)
 
-    reconnect_monomers(h2o)
+    # As provided, 128.csv contains monomers that are split up across unit cells
+    # boundaries. MBPol/OpenMM cannot deal with that which is why reconnet_monomers()
+    # has to be used. 
+#    reconnect_monomers(h2o)
     h2o.calc = MbpolCalculator(h2o)
-    print(h2o.get_potential_energy())
+    print('Epot[eV] = {}'.format(h2o.get_potential_energy()))

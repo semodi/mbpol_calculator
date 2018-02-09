@@ -7,6 +7,7 @@ import mbpol
 import numpy as np
 from ase import units as ase_units
 from utils import coords_to_pdb
+import os
 eVtokcal = 23.06035
 kcaltoeV = 1/eVtokcal
 
@@ -19,10 +20,19 @@ class MbpolCalculator:
         # Create a PDB file that can be read by OpenMM
         coords_to_pdb(atoms.get_positions(),int(atoms.get_number_of_atoms()/3))
         pdb = app.PDBFile("./tmp.pdb")
+        os.remove('./tmp.pdb')
 
-        self.atoms = atoms
         cell = atoms.get_cell()
 
+        # Make sure bond lengths are within MBPol range
+        distances = atoms.get_all_distances()
+        for i in range(0,len(distances),3):
+            for j in [1,2]:
+                if distances[i,i+j] > 1.5:
+                    print('WARNING: rOH > 1.5 A!!!!!! ({})'.format(distances[i,i+j]))
+                    if atoms.get_pbc()[0]: print('Try: reconnect_monomers()')
+
+        self.atoms = atoms
         if np.count_nonzero(cell - np.diag(np.diag(cell))) != 0:
             raise Exception('Only orthorhombic unit cells supported')
 
@@ -83,25 +93,28 @@ class MbpolCalculator:
 
     def get_stress(self, atoms):
 #        return np.zeros([3,3])
-        raise Exception('get_stress not implemented')
+        raise Exception('get_stress() not implemented')
 
 def reconnect_monomers(atoms):
+    """ Reconnect Hydrogen and Oxygen that are split across unit cell
+        boundaries and are therefore situated on opposite ends of the unit
+        cell
+    """
     boxsize = np.diag(atoms.get_cell())
     pos0 = np.array(atoms.positions)
 
     for i,_ in enumerate(atoms.get_positions()[::3]):
 
-        if atoms.get_distance(i*3,i*3+1) > min(boxsize) - 5:
+        if atoms.get_distance(i*3,i*3+1) > 1.5:
             d = atoms.positions[i*3] - atoms.positions[i*3+1]
             which = np.where(np.abs(d) > 5)[0]
             for w in which:
                 pos0[i*3+1, w] += d[w]/np.abs(d[w]) * boxsize[w]
-        elif atoms.get_distance(i*3,i*3+2) > min(boxsize) -5:
+        elif atoms.get_distance(i*3,i*3+2) > 1.5:
             d = atoms.positions[i*3] - atoms.positions[i*3+2]
             which = np.where(np.abs(d) > 5)[0]
             for w in which:
                 pos0[i*3+2, w] += d[w]/np.abs(d[w]) * boxsize[w]
 
     atoms.set_positions(pos0)
-
     return atoms
