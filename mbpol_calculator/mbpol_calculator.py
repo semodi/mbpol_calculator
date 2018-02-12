@@ -6,7 +6,7 @@ import sys
 import mbpol
 import numpy as np
 from ase import units as ase_units
-from utils import coords_to_pdb
+from .utils import coords_to_pdb
 import os
 eVtokcal = 23.06035
 kcaltoeV = 1/eVtokcal

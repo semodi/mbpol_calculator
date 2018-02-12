@@ -1,7 +1,9 @@
 # mbpol_calculator
 MBPol calculator for the atomic simulation environment (ASE). The calculator implements an interface to OpenMM from which the MBPol plugin can be used.
 
-## Installing dependencies
+## Installation
+
+### Dependencies
 Assuming anaconda is installed, run the following commands in your terminal
 ```
 conda install -c omnia openmm
@@ -10,6 +12,12 @@ conda config --add channels https://conda.anaconda.org/paesanilab
 conda install mbpol
 conda install -c conda-forge ase
 ```
+### Install library
+Change into the directory that contains ```setup.py``` and execute
+```
+pip install -e .
+```
+
 
 ## How-to
 
