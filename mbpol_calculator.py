@@ -92,8 +92,8 @@ class MbpolCalculator:
         return self.state.getPotentialEnergy().value_in_unit(unit.kilocalorie_per_mole)*kcaltoeV
 
     def get_stress(self, atoms):
-#        return np.zeros([3,3])
-        raise Exception('get_stress() not implemented')
+        return np.zeros([3,3])
+#        raise Exception('get_stress() not implemented')
 
 def reconnect_monomers(atoms):
     """ Reconnect Hydrogen and Oxygen that are split across unit cell
