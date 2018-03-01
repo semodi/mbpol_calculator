@@ -28,7 +28,7 @@ class MbpolCalculator:
         distances = atoms.get_all_distances()
         for i in range(0,len(distances),3):
             for j in [1,2]:
-                if distances[i,i+j] > 1.5:
+                if distances[i,i+j] > 4.5:
                     print('WARNING: rOH > 1.5 A!!!!!! ({})'.format(distances[i,i+j]))
                     if atoms.get_pbc()[0]: print('Try: reconnect_monomers()')
 
@@ -105,12 +105,12 @@ def reconnect_monomers(atoms):
 
     for i,_ in enumerate(atoms.get_positions()[::3]):
 
-        if atoms.get_distance(i*3,i*3+1) > 1.5:
+        if atoms.get_distance(i*3,i*3+1) > 3.5:
             d = atoms.positions[i*3] - atoms.positions[i*3+1]
             which = np.where(np.abs(d) > 5)[0]
             for w in which:
                 pos0[i*3+1, w] += d[w]/np.abs(d[w]) * boxsize[w]
-        elif atoms.get_distance(i*3,i*3+2) > 1.5:
+        elif atoms.get_distance(i*3,i*3+2) > 3.5:
             d = atoms.positions[i*3] - atoms.positions[i*3+2]
             which = np.where(np.abs(d) > 5)[0]
             for w in which:

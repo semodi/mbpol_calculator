@@ -27,6 +27,7 @@ def get_pot_energy(i, kwargs):
                 pbc = pbc)
 
     reconnect_monomers(h2o)
+    reconnect_monomers(h2o)
     h2o.calc = MbpolCalculator(h2o)
     pot_energy = h2o.get_potential_energy()
     return pot_energy
@@ -61,9 +62,9 @@ if __name__ == '__main__':
                     raise TypeError
             except TypeError:
                 print('type Error')
-                a = 0.0
+                a = b = c =  0.0
         else:
-            a = args.a
+            a = b = c =  args.a
 
 
     # Find number of systems
