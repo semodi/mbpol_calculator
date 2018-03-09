@@ -33,6 +33,7 @@ class MbpolCalculator:
                     if atoms.get_pbc()[0]: print('Try: reconnect_monomers()')
 
         self.atoms = atoms
+        
         if np.count_nonzero(cell - np.diag(np.diag(cell))) != 0:
             raise Exception('Only orthorhombic unit cells supported')
 
@@ -57,8 +58,7 @@ class MbpolCalculator:
         self.platform = mm.Platform.getPlatformByName('Reference')
         integrator = mm.VerletIntegrator(0.5) # Never used but needed for context
         self.simulation = app.Simulation(pdb.topology, self.system, integrator, self.platform)
-        self.simulation.context.setPositions(pdb.positions) #ASE: Angstrom , OMM : nm
-        self.simulation.context.computeVirtualSites()
+        self.set_positions(atoms) #ASE: Angstrom , OMM : nm
         self.state = self.simulation.context.getState(getForces=True, getEnergy=True)
         self.last_coordinates = np.array(pdb.positions.value_in_unit(unit.angstrom))
         self.last_coordinates = np.delete(self.last_coordinates,
@@ -95,7 +95,7 @@ class MbpolCalculator:
         return np.zeros([3,3])
 #        raise Exception('get_stress() not implemented')
 
-def reconnect_monomers(atoms):
+def reconnect_monomers(atoms, rc = 3.5):
     """ Reconnect Hydrogen and Oxygen that are split across unit cell
         boundaries and are therefore situated on opposite ends of the unit
         cell
@@ -105,12 +105,12 @@ def reconnect_monomers(atoms):
 
     for i,_ in enumerate(atoms.get_positions()[::3]):
 
-        if atoms.get_distance(i*3,i*3+1) > 3.5:
+        if atoms.get_distance(i*3,i*3+1) > rc:
             d = atoms.positions[i*3] - atoms.positions[i*3+1]
             which = np.where(np.abs(d) > 5)[0]
             for w in which:
                 pos0[i*3+1, w] += d[w]/np.abs(d[w]) * boxsize[w]
-        elif atoms.get_distance(i*3,i*3+2) > 3.5:
+        elif atoms.get_distance(i*3,i*3+2) > rc:
             d = atoms.positions[i*3] - atoms.positions[i*3+2]
             which = np.where(np.abs(d) > 5)[0]
             for w in which:

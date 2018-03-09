@@ -8,30 +8,6 @@ import ipyparallel as ipp
 import time
 import pandas as pd
 
-def get_pot_energy(i, kwargs):
-    import ase.io as io
-    from mbpol_calculator import MbpolCalculator
-    from mbpol_calculator import reconnect_monomers
-    from ase import Atoms
-    import time
-    pbc = kwargs['pbc']
-    a = kwargs['a']
-    b = kwargs['b']
-    c = kwargs['c']
-    xyz_file = kwargs['xyz_file']
-    n_mol = kwargs['n_mol']
-
-    h2o = Atoms('{}OHH'.format(n_mol),
-                positions = io.read(xyz_file, index = i).get_positions(),
-                cell = [a, b, c],
-                pbc = pbc)
-
-    reconnect_monomers(h2o)
-    reconnect_monomers(h2o)
-    h2o.calc = MbpolCalculator(h2o)
-    pot_energy = h2o.get_potential_energy()
-    return pot_energy
-
 if __name__ == '__main__':
 
     # Parse Command line
@@ -66,24 +42,28 @@ if __name__ == '__main__':
         else:
             a = b = c =  args.a
 
+    h2o = Atoms('{}OHH'.format(n_mol),
+                positions = io.read(args.xyz_file, index = 0).get_positions(),
+                cell = [a, b, c],
+                pbc = args.pbc)
+
+    reconnect_monomers(h2o)
+    reconnect_monomers(h2o)
+    h2o.calc = MbpolCalculator(h2o)
 
     # Find number of systems
     n_systems = len(io.read(args.xyz_file, index = ':'))
-    kwargs = {'a' : a, 'b' : b, 'c' :c, 'xyz_file' : args.xyz_file,
-        'pbc' : args.pbc, 'n_mol' : n_mol}
 
     # Find mpi settings
     indices = list(range(n_systems))
-    if args.ipprofile != 'None':
-        client = ipp.Client(profile=args.ipprofile)
-        view = client.load_balanced_view()
-        pot_energies = view.map_sync(get_pot_energy,
-            indices,
-            [kwargs]*len(indices))
-    else:
-        pot_energies = list(map(get_pot_energy,
-            indices, [kwargs]*len(indices)))
-    
+    pot_energies = []
+    for i in indices:
+        print(i)
+        h2o.set_positions(io.read(args.xyz_file, index = i).get_positions())
+        reconnect_monomers(h2o)
+        reconnect_monomers(h2o)
+        pot_energies.append(h2o.get_potential_energy())           
+
     pd.DataFrame(pot_energies).to_csv(args.out_file, index = None, header = None)
     print('Calculation took {} s'.format(time.time()-start_time))
     print(pot_energies)
