@@ -1,5 +1,5 @@
 # mbpol_calculator
-MBPol calculator for the atomic simulation environment (ASE). The calculator implements an interface to OpenMM from which the MBPol plugin can be used.
+MB-pol calculator for the atomic simulation environment (ASE). The calculator implements an interface to OpenMM from which the MB-pol plugin can be used.
 
 ## Installation
 
