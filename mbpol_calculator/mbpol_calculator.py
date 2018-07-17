@@ -28,8 +28,8 @@ class MbpolCalculator:
         distances = atoms.get_all_distances()
         for i in range(0,len(distances),3):
             for j in [1,2]:
-                if distances[i,i+j] > 4.5:
-                    print('WARNING: rOH > 1.5 A!!!!!! ({})'.format(distances[i,i+j]))
+                if distances[i,i+j] > 2.5:
+                    print('WARNING: rOH > 2.5 A!!!!!! ({})'.format(distances[i,i+j]))
                     if atoms.get_pbc()[0]: print('Try: reconnect_monomers()')
 
         self.atoms = atoms
@@ -95,7 +95,7 @@ class MbpolCalculator:
         return np.zeros([3,3])
 #        raise Exception('get_stress() not implemented')
 
-def reconnect_monomers(atoms, rc = 3.5):
+def reconnect_monomers(atoms, rc = 2.5):
     """ Reconnect Hydrogen and Oxygen that are split across unit cell
         boundaries and are therefore situated on opposite ends of the unit
         cell
@@ -110,7 +110,7 @@ def reconnect_monomers(atoms, rc = 3.5):
             which = np.where(np.abs(d) > 5)[0]
             for w in which:
                 pos0[i*3+1, w] += d[w]/np.abs(d[w]) * boxsize[w]
-        elif atoms.get_distance(i*3,i*3+2) > rc:
+        if atoms.get_distance(i*3,i*3+2) > rc:
             d = atoms.positions[i*3] - atoms.positions[i*3+2]
             which = np.where(np.abs(d) > 5)[0]
             for w in which:
