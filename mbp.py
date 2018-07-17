@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+'''
+Driver that allows for the calculation of potential energies of water systems 
+provided in an xyz-file
+'''
 from ase import Atoms
 from mbpol_calculator import *
 import sys
