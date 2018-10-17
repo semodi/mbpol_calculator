@@ -8,9 +8,7 @@ from mbpol_calculator import *
 import sys
 import argparse
 import ase.io as io
-import ipyparallel as ipp
 import time
-import pandas as pd
 
 def log_all(energies, forces, energy_file, force_file):
     energyfile.write('{:.6f}\n'.format(energies))
@@ -25,8 +23,6 @@ if __name__ == '__main__':
     parser.add_argument('-a', metavar='a', type=float, nargs = '?',
      default=0.0, help='Sidelength of cubic box')
     parser.add_argument('-pbc', action=('store_true'), help='Use PBC?')
-    parser.add_argument('-ipprofile', metavar= 'ipprofile', type=str, nargs='?',
-     default='None',help='Which ipcluster profile to use (default: None)')
     args = parser.parse_args()
 
     start_time = time.time()
@@ -74,7 +70,4 @@ if __name__ == '__main__':
         f = h2o.get_forces()
         log_all(e,f,energyfile,forcefile)
 
-    pd.DataFrame(pot_energies).to_csv(args.out_file, index = None, header = None)
-    pd.DataFrame(np.array(forces).reshape(-1,3)).to_csv(args.out_file + '_forces',
-         index = None, header = None)
     print('Calculation took {} s'.format(time.time()-start_time))
