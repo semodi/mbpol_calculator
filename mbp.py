@@ -12,6 +12,10 @@ import ipyparallel as ipp
 import time
 import pandas as pd
 
+def log_all(energies, forces, energy_file, force_file):
+    energyfile.write('{:.6f}\n'.format(energies))
+    np.savetxt(forcefile, forces, fmt = '%.6f')
+
 if __name__ == '__main__':
 
     # Parse Command line
@@ -52,7 +56,6 @@ if __name__ == '__main__':
                 pbc = args.pbc)
 
     reconnect_monomers(h2o)
-    reconnect_monomers(h2o)
     h2o.calc = MbpolCalculator(h2o)
 
     # Find number of systems
@@ -60,14 +63,18 @@ if __name__ == '__main__':
 
     # Find mpi settings
     indices = list(range(n_systems))
-    pot_energies = []
+    energyfile = open(args.out_file, 'a')
+    forcefile = open(args.out_file +'_forces','a')
+
     for i in indices:
         print(i)
         h2o.set_positions(io.read(args.xyz_file, index = i).get_positions())
         reconnect_monomers(h2o)
-        reconnect_monomers(h2o)
-        pot_energies.append(h2o.get_potential_energy())           
+        e = h2o.get_potential_energy()
+        f = h2o.get_forces()
+        log_all(e,f,energyfile,forcefile)
 
     pd.DataFrame(pot_energies).to_csv(args.out_file, index = None, header = None)
+    pd.DataFrame(np.array(forces).reshape(-1,3)).to_csv(args.out_file + '_forces',
+         index = None, header = None)
     print('Calculation took {} s'.format(time.time()-start_time))
-    print(pot_energies)
