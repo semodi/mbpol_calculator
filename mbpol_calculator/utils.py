@@ -4,7 +4,6 @@ import simtk.openmm as mm
 from simtk import unit
 import sys
 import mbpol
-from siesta_utils.conversions import kcaltoeV 
 from simtk.openmm import LocalEnergyMinimizer
 
 
